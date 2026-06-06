@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.setDependencies = exports.setInterfaces = exports.uninit = exports.init = exports.main = exports.manifest = void 0;
+const start_sdk_1 = require("@start9labs/start-sdk");
+const manifest_1 = require("./manifest");
+const versions_1 = require("./versions");
+exports.manifest = (0, start_sdk_1.buildManifest)(versions_1.versionGraph, manifest_1.manifest);
+var main_1 = require("./main");
+Object.defineProperty(exports, "main", { enumerable: true, get: function () { return main_1.main; } });
+var init_1 = require("./init");
+Object.defineProperty(exports, "init", { enumerable: true, get: function () { return init_1.init; } });
+Object.defineProperty(exports, "uninit", { enumerable: true, get: function () { return init_1.uninit; } });
+var interfaces_1 = require("./interfaces");
+Object.defineProperty(exports, "setInterfaces", { enumerable: true, get: function () { return interfaces_1.setInterfaces; } });
+var dependencies_1 = require("./dependencies");
+Object.defineProperty(exports, "setDependencies", { enumerable: true, get: function () { return dependencies_1.setDependencies; } });

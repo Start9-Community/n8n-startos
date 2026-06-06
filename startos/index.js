@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.versions = exports.setDependencies = exports.setInterfaces = exports.main = exports.manifest = void 0;
+var index_1 = require("./manifest/index");
+Object.defineProperty(exports, "manifest", { enumerable: true, get: function () { return index_1.manifest; } });
+var main_1 = require("./main");
+Object.defineProperty(exports, "main", { enumerable: true, get: function () { return main_1.main; } });
+var interfaces_1 = require("./interfaces");
+Object.defineProperty(exports, "setInterfaces", { enumerable: true, get: function () { return interfaces_1.setInterfaces; } });
+var dependencies_1 = require("./dependencies");
+Object.defineProperty(exports, "setDependencies", { enumerable: true, get: function () { return dependencies_1.setDependencies; } });
+var index_2 = require("./versions/index");
+Object.defineProperty(exports, "versions", { enumerable: true, get: function () { return index_2.versions; } });

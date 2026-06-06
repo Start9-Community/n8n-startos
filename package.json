@@ -1,0 +1,14 @@
+{
+  "name": "n8n-startos",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@start9labs/start-sdk": "^1.5.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
