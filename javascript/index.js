@@ -53274,7 +53274,7 @@ var __webpack_exports__ = {};
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.uninit = exports.init = exports.main = exports.createBackup = exports.manifest = void 0;
+exports.setDependencies = exports.setInterfaces = exports.uninit = exports.init = exports.main = exports.createBackup = exports.manifest = void 0;
 const start_sdk_1 = __nccwpck_require__(1098);
 const manifest_1 = __nccwpck_require__(1297);
 const versions_1 = __nccwpck_require__(3717);
@@ -53286,6 +53286,10 @@ Object.defineProperty(exports, "main", ({ enumerable: true, get: function () { r
 var init_1 = __nccwpck_require__(5010);
 Object.defineProperty(exports, "init", ({ enumerable: true, get: function () { return init_1.init; } }));
 Object.defineProperty(exports, "uninit", ({ enumerable: true, get: function () { return init_1.uninit; } }));
+var interfaces_1 = __nccwpck_require__(9863);
+Object.defineProperty(exports, "setInterfaces", ({ enumerable: true, get: function () { return interfaces_1.setInterfaces; } }));
+var dependencies_1 = __nccwpck_require__(1974);
+Object.defineProperty(exports, "setDependencies", ({ enumerable: true, get: function () { return dependencies_1.setDependencies; } }));
 
 })();
 
