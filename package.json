@@ -1,14 +1,15 @@
 {
   "name": "n8n-startos",
-  "version": "1.0.0",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf ./javascript && ncc build startos/index.ts -o ./javascript",
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@start9labs/start-sdk": "^1.5.0"
+    "@start9labs/start-sdk": "1.5.3"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@vercel/ncc": "^0.38.3",
     "typescript": "^5.4.0"
   }
 }
