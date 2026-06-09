@@ -26735,7 +26735,7 @@ exports.manifest = (0, start_sdk_1.setupManifest)({
     id: 'n8n',
     title: 'n8n',
     license: 'Sustainable Use License',
-    packageRepo: 'https://github.com/YOUR_USERNAME/n8n-startos',
+    packageRepo: 'https://github.com/rueckwaerts/n8n-startos',
     upstreamRepo: 'https://github.com/n8n-io/n8n',
     marketingUrl: 'https://n8n.io',
     donationUrl: null,
