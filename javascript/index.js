@@ -26643,20 +26643,20 @@ exports.setInterfaces = void 0;
 const sdk_1 = __nccwpck_require__(8192);
 const uiPort = 5678;
 exports.setInterfaces = sdk_1.sdk.setupInterfaces(async ({ effects }) => {
-    const uiMulti = sdk_1.sdk.MultiHost.of(effects, 'ui');
-    const origin = await uiMulti.bindPort(uiPort, { protocol: 'http' });
+    const uiMulti = sdk_1.sdk.MultiHost.of(effects, 'main');
+    const uiMultiOrigin = await uiMulti.bindPort(uiPort, { protocol: 'http' });
     const ui = sdk_1.sdk.createInterface(effects, {
         name: 'Web UI',
         id: 'ui',
         description: 'n8n visual workflow editor',
         type: 'ui',
-        masked: false,
         schemeOverride: null,
+        masked: false,
         username: null,
         path: '',
         query: {},
     });
-    const receipt = await origin.export([ui]);
+    const receipt = await uiMultiOrigin.export([ui]);
     return [receipt];
 });
 
