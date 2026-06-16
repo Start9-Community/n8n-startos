@@ -1,5 +1,8 @@
-node_modules/
-dist/
 *.s9pk
-.env
-*.key
+startos/*.js
+node_modules/
+.DS_Store
+.vscode/
+docker-images
+javascript
+ncc-cache
