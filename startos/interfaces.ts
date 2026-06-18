@@ -1,23 +1,26 @@
+import { i18n } from './i18n'
 import { sdk } from './sdk'
-
-const uiPort = 5678
+import { uiPort } from './utils'
 
 export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
-  const uiMulti = sdk.MultiHost.of(effects, 'main')
-  const uiMultiOrigin = await uiMulti.bindPort(uiPort, { protocol: 'http' })
+  const uiMulti = sdk.MultiHost.of(effects, 'ui-multi')
+  const uiMultiOrigin = await uiMulti.bindPort(uiPort, {
+    protocol: 'http',
+  })
 
   const ui = sdk.createInterface(effects, {
-    name: 'Web UI',
+    name: i18n('Web UI'),
     id: 'ui',
-    description: 'n8n visual workflow editor',
+    description: i18n('The n8n workflow automation editor'),
     type: 'ui',
-    schemeOverride: null,
     masked: false,
+    schemeOverride: null,
     username: null,
     path: '',
     query: {},
   })
 
-  const receipt = await uiMultiOrigin.export([ui])
-  return [receipt]
+  const uiReceipt = await uiMultiOrigin.export([ui])
+
+  return [uiReceipt]
 })

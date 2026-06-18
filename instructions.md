@@ -1,60 +1,59 @@
-# n8n — Workflow Automation
+# n8n
 
-n8n is a self-hosted workflow automation tool. Build automations visually, connect services, and create AI-powered workflows — all running on your StartOS server.
+n8n is a self-hosted workflow automation tool. Build automations visually, connect hundreds of services, and create AI-powered workflows — all running on your own StartOS server.
 
-## First Setup
+## Documentation
 
-1. Open the n8n Web UI from your StartOS dashboard
-2. Create your admin account (username + password)
-3. You're ready to build workflows
+- [n8n documentation](https://docs.n8n.io/) — the upstream guide to building workflows, nodes, and credentials.
+- [Workflow templates](https://n8n.io/workflows/) — ready-made workflows you can import and adapt.
 
-> **Security note:** Keep your login credentials safe. Anyone with access to the Web UI can create and run workflows.
+## What you get on StartOS
 
-## Connecting Telegram (Recommended)
+- A self-hosted **Web UI** — the n8n editor, REST API, and webhook endpoints, all on one interface.
+- Your workflows, credentials, and execution history live entirely on your server's `main` volume and are included in StartOS backups.
+- An embedded SQLite database — no separate database to run or configure.
 
-Telegram is the easiest way to interact with n8n from your phone:
+## Getting set up
 
-1. Open Telegram and message `@BotFather`
-2. Send `/newbot` and follow the prompts
-3. Copy your **Bot Token**
-4. In n8n, create a new workflow with a **Telegram Trigger** node
-5. Paste your Bot Token into the credentials
-6. Add your desired actions (AI, notifications, etc.)
+1. Open the **Web UI** interface from the **Dashboard** tab.
+2. On first launch, n8n asks you to create the **owner account** (email + password). This account is the administrator — keep its credentials safe, as anyone who can sign in can create and run workflows.
+3. You're ready to build. Create a workflow, add a trigger node, and connect the services you want to automate.
 
-## Connecting Claude AI
+## Using n8n
 
-1. Get your API key from [console.anthropic.com](https://console.anthropic.com)
-2. In n8n, go to **Settings → Credentials → New Credential**
-3. Select **Anthropic** and paste your API key
-4. Use the **AI Agent** or **HTTP Request** node in your workflows
+### Connecting services
 
-## Connecting Local AI (Ollama)
+Most integrations work by adding a **credential** (an API key or token) to a node:
 
-If you have Ollama installed on StartOS:
+1. In a workflow, add the node for the service you want (e.g. a **Telegram Trigger**, an **HTTP Request**, or an AI node).
+2. Open the node's **Credentials** field and create a new credential.
+3. Paste the API key or token from that service and save.
 
-1. In n8n, use an **HTTP Request** node
-2. Set URL to `http://ollama.startos:11434/api/generate`
-3. No API key needed — fully local and private
+Credentials are encrypted at rest using a key stored on your server's volume — they never leave your StartOS.
 
-## Access from Outside Your Network
+### AI workflows
 
-n8n is available via your StartOS **Tor** address. To use it from your phone:
+n8n includes AI nodes (AI Agent, model nodes, and a generic HTTP Request node). Point them at a hosted provider with an API key, or at a model you run yourself elsewhere on your network.
 
-1. Install **Tor Browser** or **Onion Browser** on your device
-2. Find the n8n `.onion` address in **Services → n8n → Interfaces**
-3. Open that address in Tor Browser
+## Adding more users
 
-## Security
+User accounts are created and managed **inside n8n**, not through StartOS. As the owner, open **Settings → Users** and invite people. With **Configure SMTP** set up, invitations are emailed; without it, n8n gives you an invite link to share manually.
 
-- n8n has **no access** to your Bitcoin or Lightning services
-- All data is stored locally in `/data/database.sqlite`
-- External API calls (Telegram, Claude, etc.) are made only through workflows you create
-- Backups are included in your StartOS backup
+## Actions
 
-## Troubleshooting
+Two StartOS actions are available under the service's **Actions** tab:
 
-**n8n won't start:** Check the service logs in StartOS. Usually a permissions issue on `/data`.
+- **Configure SMTP** — give n8n an email server (your StartOS system SMTP or a custom one). It enables the login screen's **"Forgot password"** reset and lets n8n email the user invitations above. Set it up if you want self-service password resets.
+- **Reset Owner Password** — locked out of the owner account with no email set up? Run this to get a freshly generated owner password (shown once — copy it, then sign in and change it in **Settings** if you like). It changes **only** the owner's password; every other user, workflow, and credential is left exactly as it was, and n8n keeps running.
 
-**Webhook not working:** Webhooks require your n8n to be reachable from the internet. Use the Tor address for testing, or configure port forwarding.
+## Accessing n8n remotely
 
-**Forgot password:** Use the n8n CLI via StartOS terminal actions (coming in v1.1).
+By default the Web UI is reachable on your **local network** — via the server's `.local` hostname or its LAN IP. StartOS does not put the service on Tor automatically. To reach n8n from outside your LAN, add an address to its **Web UI** interface from the service's **Interfaces** screen:
+
+- a **Tor** `.onion` address (requires the Tor service on your StartOS), or
+- a **custom domain** you control.
+
+## Limitations
+
+- **Webhook URLs show `localhost`.** n8n is not told its external address, so the webhook and "production" URLs shown in the editor read `http://localhost:5678`. The endpoints themselves work when reached through a real address; only the displayed URL is wrong. The same applies to the link inside a password-reset email — you may need to swap `localhost:5678` for your real address.
+- **Forgot the owner password?** Two non-destructive fixes: set up **Configure SMTP** and use the login screen's "Forgot password" link, or just run the **Reset Owner Password** action to get a new one. Either way, nothing else is touched.
