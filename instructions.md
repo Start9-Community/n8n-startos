@@ -53,6 +53,10 @@ By default the Web UI is reachable on your **local network** — via the server'
 - a **Tor** `.onion` address (requires the Tor service on your StartOS), or
 - a **custom domain** you control.
 
+## Uninstalling
+
+Uninstalling n8n permanently deletes all of your workflows, saved credentials, and execution history. Export anything you want to keep before continuing.
+
 ## Limitations
 
 - **Webhook URLs show `localhost`.** n8n is not told its external address, so the webhook and "production" URLs shown in the editor read `http://localhost:5678`. The endpoints themselves work when reached through a real address; only the displayed URL is wrong. The same applies to the link inside a password-reset email — you may need to swap `localhost:5678` for your real address.
