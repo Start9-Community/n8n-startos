@@ -14,7 +14,7 @@ export const manifest = setupManifest({
   images: {
     n8n: {
       source: {
-        dockerTag: 'n8nio/n8n:2.26.4',
+        dockerTag: 'n8nio/n8n:2.28.6',
       },
       arch: ['x86_64', 'aarch64'],
     },
