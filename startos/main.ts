@@ -59,7 +59,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     })
   }
 
-  const n8nContainer = await sdk.SubContainer.of(
+  const n8nContainer = sdk.SubContainer.of(
     effects,
     { imageId: 'n8n' },
     sdk.Mounts.of().mountVolume({

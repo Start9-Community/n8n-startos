@@ -1,5 +1,5 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { alertUninstall, long, short } from './i18n'
+import { long, short } from './i18n'
 
 export const manifest = setupManifest({
   id: 'n8n',
@@ -14,18 +14,10 @@ export const manifest = setupManifest({
   images: {
     n8n: {
       source: {
-        dockerTag: 'n8nio/n8n:2.26.4',
+        dockerTag: 'n8nio/n8n:2.30.8',
       },
       arch: ['x86_64', 'aarch64'],
     },
-  },
-  alerts: {
-    install: null,
-    update: null,
-    uninstall: alertUninstall,
-    restore: null,
-    start: null,
-    stop: null,
   },
   dependencies: {},
 })

@@ -18,16 +18,3 @@ export const long = {
   fr_FR:
     "n8n est une plateforme d'automatisation de flux de travail en fair-code. Connectez des centaines d'applications et de services, automatisez les tâches répétitives et créez des flux de travail dopés à l'IA grâce à un éditeur visuel basé sur des nœuds — le tout auto-hébergé sur votre propre serveur, avec vos données et vos identifiants sous votre contrôle.",
 }
-
-export const alertUninstall = {
-  en_US:
-    'Uninstalling n8n permanently deletes all of your workflows, saved credentials, and execution history. Export anything you want to keep before continuing.',
-  es_ES:
-    'Desinstalar n8n elimina permanentemente todos tus flujos de trabajo, credenciales guardadas e historial de ejecuciones. Exporta todo lo que quieras conservar antes de continuar.',
-  de_DE:
-    'Beim Deinstallieren von n8n werden alle Ihre Workflows, gespeicherten Zugangsdaten und der Ausführungsverlauf dauerhaft gelöscht. Exportieren Sie alles, was Sie behalten möchten, bevor Sie fortfahren.',
-  pl_PL:
-    'Odinstalowanie n8n trwale usuwa wszystkie Twoje przepływy pracy, zapisane poświadczenia i historię wykonań. Przed kontynuowaniem wyeksportuj wszystko, co chcesz zachować.',
-  fr_FR:
-    "La désinstallation de n8n supprime définitivement tous vos flux de travail, identifiants enregistrés et historique d'exécution. Exportez tout ce que vous souhaitez conserver avant de continuer.",
-}
