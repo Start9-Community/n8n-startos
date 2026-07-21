@@ -1,58 +1,33 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '2.29.10:0',
+  version: '2.30.8:0',
   releaseNotes: {
-    en_US: `Updated n8n to 2.29.10.
+    en_US: `Updated n8n to 2.30.8.
 
-- Adds configurable blocked hostnames for outbound requests.
-- Adds an Azure storage mode for binary data and database connection-pool metrics.
-- Adds Microsoft Entra, GitHub App, and Microsoft OneDrive/Outlook service-principal credentials.
-- Adds scheduled messages and user lookup by email to the Slack node.
-- Shows canvas groups in the execution view, and turns Chat Hub off by default on instances that do not use it.
-- Rolls up ten bug-fix releases, including OAuth2 refresh-token rotation, webhook paths containing stray whitespace, graceful shutdown now letting in-flight executions finish, and partially installed community packages no longer blocking startup.
+This release also migrates the package to start-sdk 2.0 (requires StartOS 0.4.0-beta.10 or later). The 2.27–2.30 lines add S3/Azure execution-data storage, generally available data redaction, custom instance roles, and many fixes; n8n applies a database index migration automatically on first start. Your workflows and credentials are preserved.
 
-Full release notes: https://github.com/n8n-io/n8n/releases/tag/n8n%402.29.10`,
-    es_ES: `Actualiza n8n a 2.29.10.
+Full release notes: https://github.com/n8n-io/n8n/releases`,
+    es_ES: `Actualiza n8n a 2.30.8.
 
-- Añade nombres de host bloqueados configurables para las solicitudes salientes.
-- Añade un modo de almacenamiento de Azure para los datos binarios y métricas del grupo de conexiones de la base de datos.
-- Añade credenciales de entidad de servicio para Microsoft Entra, GitHub App y Microsoft OneDrive/Outlook.
-- Añade mensajes programados y búsqueda de usuarios por correo electrónico al nodo Slack.
-- Muestra los grupos del lienzo en la vista de ejecución y desactiva Chat Hub de forma predeterminada en las instancias que no lo utilizan.
-- Reúne diez versiones de corrección de errores, entre ellas la rotación de tokens de actualización de OAuth2, las rutas de webhook con espacios sobrantes, el apagado ordenado que ahora permite finalizar las ejecuciones en curso y los paquetes de la comunidad instalados parcialmente que ya no bloquean el arranque.
+Esta versión también migra el paquete a start-sdk 2.0 (requiere StartOS 0.4.0-beta.10 o posterior). Las líneas 2.27–2.30 añaden almacenamiento de datos de ejecución en S3/Azure, redacción de datos con disponibilidad general, roles de instancia personalizados y numerosas correcciones; n8n aplica una migración de índice de base de datos automáticamente en el primer arranque. Tus flujos de trabajo y credenciales se conservan.
 
-Notas de la versión completas: https://github.com/n8n-io/n8n/releases/tag/n8n%402.29.10`,
-    de_DE: `Aktualisiert n8n auf 2.29.10.
+Notas de la versión completas: https://github.com/n8n-io/n8n/releases`,
+    de_DE: `Aktualisiert n8n auf 2.30.8.
 
-- Fügt konfigurierbare blockierte Hostnamen für ausgehende Anfragen hinzu.
-- Fügt einen Azure-Speichermodus für Binärdaten sowie Metriken für den Datenbank-Verbindungspool hinzu.
-- Fügt Dienstprinzipal-Anmeldedaten für Microsoft Entra, GitHub App und Microsoft OneDrive/Outlook hinzu.
-- Fügt dem Slack-Node geplante Nachrichten und die Benutzersuche per E-Mail hinzu.
-- Zeigt Canvas-Gruppen in der Ausführungsansicht an und deaktiviert Chat Hub standardmäßig auf Instanzen, die ihn nicht verwenden.
-- Bündelt zehn Fehlerbehebungsversionen, darunter die Rotation von OAuth2-Refresh-Tokens, Webhook-Pfade mit überflüssigen Leerzeichen, das ordnungsgemäße Herunterfahren, bei dem laufende Ausführungen nun abgeschlossen werden, und teilweise installierte Community-Pakete, die den Start nicht mehr blockieren.
+Diese Version stellt das Paket außerdem auf start-sdk 2.0 um (erfordert StartOS 0.4.0-beta.10 oder neuer). Die Reihen 2.27–2.30 ergänzen S3-/Azure-Speicher für Ausführungsdaten, allgemein verfügbare Datenschwärzung, benutzerdefinierte Instanzrollen und viele Fehlerbehebungen; n8n wendet beim ersten Start automatisch eine Datenbank-Index-Migration an. Ihre Workflows und Anmeldedaten bleiben erhalten.
 
-Vollständige Versionshinweise: https://github.com/n8n-io/n8n/releases/tag/n8n%402.29.10`,
-    pl_PL: `Aktualizuje n8n do 2.29.10.
+Vollständige Versionshinweise: https://github.com/n8n-io/n8n/releases`,
+    pl_PL: `Aktualizuje n8n do 2.30.8.
 
-- Dodaje konfigurowalne zablokowane nazwy hostów dla żądań wychodzących.
-- Dodaje tryb przechowywania Azure dla danych binarnych oraz metryki puli połączeń z bazą danych.
-- Dodaje poświadczenia jednostki usługi dla Microsoft Entra, GitHub App oraz Microsoft OneDrive/Outlook.
-- Dodaje zaplanowane wiadomości i wyszukiwanie użytkowników po adresie e-mail do węzła Slack.
-- Pokazuje grupy kanwy w widoku wykonania i domyślnie wyłącza Chat Hub na instancjach, które go nie używają.
-- Zbiera dziesięć wydań naprawczych, w tym rotację tokenów odświeżania OAuth2, ścieżki webhooków ze zbędnymi spacjami, płynne zamykanie pozwalające teraz dokończyć trwające wykonania oraz częściowo zainstalowane pakiety społeczności, które nie blokują już uruchamiania.
+Ta wersja przenosi też pakiet na start-sdk 2.0 (wymaga StartOS 0.4.0-beta.10 lub nowszego). Linie 2.27–2.30 dodają przechowywanie danych wykonania w S3/Azure, ogólnie dostępne maskowanie danych, niestandardowe role instancji oraz wiele poprawek; n8n automatycznie stosuje migrację indeksu bazy danych przy pierwszym uruchomieniu. Twoje przepływy pracy i poświadczenia są zachowane.
 
-Pełne informacje o wydaniu: https://github.com/n8n-io/n8n/releases/tag/n8n%402.29.10`,
-    fr_FR: `Met à jour n8n vers 2.29.10.
+Pełne informacje o wydaniu: https://github.com/n8n-io/n8n/releases`,
+    fr_FR: `Met à jour n8n vers 2.30.8.
 
-- Ajoute des noms d'hôte bloqués configurables pour les requêtes sortantes.
-- Ajoute un mode de stockage Azure pour les données binaires ainsi que des métriques du pool de connexions à la base de données.
-- Ajoute des identifiants de principal de service pour Microsoft Entra, GitHub App et Microsoft OneDrive/Outlook.
-- Ajoute les messages programmés et la recherche d'utilisateur par e-mail au nœud Slack.
-- Affiche les groupes du canevas dans la vue d'exécution et désactive Chat Hub par défaut sur les instances qui ne l'utilisent pas.
-- Regroupe dix versions correctives, dont la rotation des jetons de rafraîchissement OAuth2, les chemins de webhook contenant des espaces superflus, l'arrêt progressif qui laisse désormais les exécutions en cours se terminer, et les paquets communautaires partiellement installés qui ne bloquent plus le démarrage.
+Cette version fait également passer le paquet à start-sdk 2.0 (nécessite StartOS 0.4.0-beta.10 ou une version ultérieure). Les séries 2.27 à 2.30 ajoutent le stockage des données d'exécution sur S3/Azure, la caviardage des données en disponibilité générale, des rôles d'instance personnalisés et de nombreux correctifs ; n8n applique automatiquement une migration d'index de base de données au premier démarrage. Vos flux de travail et identifiants sont conservés.
 
-Notes de version complètes : https://github.com/n8n-io/n8n/releases/tag/n8n%402.29.10`,
+Notes de version complètes : https://github.com/n8n-io/n8n/releases`,
   },
   migrations: {
     up: async ({ effects }) => {},
