@@ -34,10 +34,10 @@
 
 ## Image and Container Runtime
 
-| Property      | Value                                                                 |
-| ------------- | --------------------------------------------------------------------- |
-| Image         | `n8nio/n8n` (the official image, unmodified)                          |
-| Architectures | x86_64, aarch64                                                       |
+| Property      | Value                                                                            |
+| ------------- | -------------------------------------------------------------------------------- |
+| Image         | `n8nio/n8n` (the official image, unmodified)                                     |
+| Architectures | x86_64, aarch64                                                                  |
 | Entrypoint    | Upstream default (`sdk.useEntrypoint()` → `tini` → `docker-entrypoint.sh` → n8n) |
 
 A `chown` one-shot gives the image's `node` user ownership of the mounted data directory before the server starts, since StartOS owns the volume as root.
@@ -46,8 +46,8 @@ A `chown` one-shot gives the image's `node` user ownership of the mounted data d
 
 ## Volume and Data Layout
 
-| Volume | Mount Point | Purpose                                                            |
-| ------ | ----------- | ------------------------------------------------------------------ |
+| Volume | Mount Point | Purpose                                                                           |
+| ------ | ----------- | --------------------------------------------------------------------------------- |
 | `main` | `/data`     | n8n's `N8N_USER_FOLDER`: SQLite database, encryption key, config, and binary data |
 
 The SQLite database is at `/data/database.sqlite`. The credential **encryption key** is written to `/data/.n8n/config` on first start — it is required to decrypt every stored credential, and it lives on the `main` volume so it is preserved across restarts and included in backups.
@@ -68,27 +68,27 @@ StartOS also writes `config.json` to the volume root, holding the SMTP settings 
 
 Most of n8n's runtime is configured through fixed environment variables set in `startos/main.ts`. The only user-tunable setting is SMTP, applied through the **Configure SMTP** action and stored in `config.json`. Everything else is managed inside n8n's own settings UI.
 
-| Variable                                | Value     | Purpose                                                              |
-| --------------------------------------- | --------- | ------------------------------------------------------------------- |
-| `N8N_USER_FOLDER`                       | `/data`   | Root of all persisted data                                          |
-| `N8N_PORT`                              | `5678`    | Web UI / API port                                                   |
-| `N8N_PROTOCOL`                          | `http`    | StartOS terminates TLS at its proxy and forwards plain HTTP         |
-| `N8N_SECURE_COOKIE`                     | `false`   | Allows the auth cookie over StartOS's HTTP access methods (Tor, LAN IP) |
-| `DB_TYPE` / `DB_SQLITE_DATABASE`        | `sqlite` / `/data/database.sqlite` | Embedded database — no external DB needed         |
-| `N8N_DIAGNOSTICS_ENABLED`               | `false`   | Disables telemetry                                                  |
-| `N8N_VERSION_NOTIFICATIONS_ENABLED`     | `false`   | StartOS manages updates; suppress upstream update nags             |
-| `N8N_PERSONALIZATION_ENABLED`           | `false`   | Skips the personalization survey                                   |
-| `N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS` | `true`    | Enforces strict permissions on the settings file                   |
-| `GENERIC_TIMEZONE` / `TZ`               | `UTC`     | Default timezone for schedule/cron nodes                           |
-| `N8N_EMAIL_MODE` / `N8N_SMTP_*`         | _(unset until configured)_ | Set by the **Configure SMTP** action to enable email (password resets) |
+| Variable                                | Value                              | Purpose                                                                 |
+| --------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------- |
+| `N8N_USER_FOLDER`                       | `/data`                            | Root of all persisted data                                              |
+| `N8N_PORT`                              | `5678`                             | Web UI / API port                                                       |
+| `N8N_PROTOCOL`                          | `http`                             | StartOS terminates TLS at its proxy and forwards plain HTTP             |
+| `N8N_SECURE_COOKIE`                     | `false`                            | Allows the auth cookie over StartOS's HTTP access methods (Tor, LAN IP) |
+| `DB_TYPE` / `DB_SQLITE_DATABASE`        | `sqlite` / `/data/database.sqlite` | Embedded database — no external DB needed                               |
+| `N8N_DIAGNOSTICS_ENABLED`               | `false`                            | Disables telemetry                                                      |
+| `N8N_VERSION_NOTIFICATIONS_ENABLED`     | `false`                            | StartOS manages updates; suppress upstream update nags                  |
+| `N8N_PERSONALIZATION_ENABLED`           | `false`                            | Skips the personalization survey                                        |
+| `N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS` | `true`                             | Enforces strict permissions on the settings file                        |
+| `GENERIC_TIMEZONE` / `TZ`               | `UTC`                              | Default timezone for schedule/cron nodes                                |
+| `N8N_EMAIL_MODE` / `N8N_SMTP_*`         | _(unset until configured)_         | Set by the **Configure SMTP** action to enable email (password resets)  |
 
 ---
 
 ## Network Access and Interfaces
 
-| Interface | Port | Protocol | Purpose                    |
-| --------- | ---- | -------- | -------------------------- |
-| Web UI    | 5678 | HTTP     | n8n editor, API, webhooks  |
+| Interface | Port | Protocol | Purpose                   |
+| --------- | ---- | -------- | ------------------------- |
+| Web UI    | 5678 | HTTP     | n8n editor, API, webhooks |
 
 **Access methods:**
 
@@ -103,10 +103,10 @@ The editor, REST API, and webhook endpoints are all served from this one interfa
 
 ## Actions (StartOS UI)
 
-| Action                   | Purpose                                                                                                   | Inputs                              | Allowed Status |
-| ------------------------ | -------------------------------------------------------------------------------------------------------- | ----------------------------------- | -------------- |
-| **Configure SMTP**       | Set an SMTP server (StartOS system SMTP or custom) so n8n can send email, including the login screen's "Forgot password" reset and emailed user invitations. | Disabled / system / custom SMTP     | any            |
-| **Reset Owner Password** | Generate a new password for the owner account when you are locked out and have no SMTP. It hashes the new password with n8n's own bcryptjs and updates **only** the owner's `password` row via Node's built-in sqlite — every other user, workflow, and credential is untouched, and no restart is needed. The new password is returned once. | None                                | any            |
+| Action                   | Purpose                                                                                                                                                                                                                                                                                                                                       | Inputs                          | Allowed Status |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | -------------- |
+| **Configure SMTP**       | Set an SMTP server (StartOS system SMTP or custom) so n8n can send email, including the login screen's "Forgot password" reset and emailed user invitations.                                                                                                                                                                                  | Disabled / system / custom SMTP | any            |
+| **Reset Owner Password** | Generate a new password for the owner account when you are locked out and have no SMTP. It hashes the new password with n8n's own bcryptjs and updates **only** the owner's `password` row via Node's built-in sqlite — every other user, workflow, and credential is untouched, and no restart is needed. The new password is returned once. | None                            | any            |
 
 **Password recovery — two non-destructive paths.** Either **Configure SMTP** and use the login screen's "Forgot password" link (n8n emails a reset and updates the one password in place), or run **Reset Owner Password** when you have no email (generates a fresh owner password directly). n8n ships no CLI for an in-place single-password reset, so the second action does the equivalent itself: a one-row `UPDATE` of the owner's bcrypt hash, failing loud if it would touch anything other than exactly one owner row. User accounts themselves are created and managed inside n8n (owner → **Settings → Users**), not via StartOS.
 
@@ -124,9 +124,9 @@ The editor, REST API, and webhook endpoints are all served from this one interfa
 
 ## Health Checks
 
-| Check         | Method                                  | Grace Period | Messages                                              |
-| ------------- | --------------------------------------- | ------------ | ----------------------------------------------------- |
-| Web Interface | HTTP GET `http://127.0.0.1:5678/healthz` | 60s          | Success: "n8n is ready" / Error: "n8n is not ready"   |
+| Check         | Method                                   | Grace Period | Messages                                            |
+| ------------- | ---------------------------------------- | ------------ | --------------------------------------------------- |
+| Web Interface | HTTP GET `http://127.0.0.1:5678/healthz` | 60s          | Success: "n8n is ready" / Error: "n8n is not ready" |
 
 The grace period covers first-start database setup. The upstream `/healthz` endpoint returns `200` once the server is up.
 
@@ -158,7 +158,7 @@ None.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development workflow.
+Build and development workflow follow the StartOS packaging guide: <https://docs.start9.com/packaging>. Keep `README.md`, `instructions.md`, and `AGENTS.md` in sync with any change to user-visible behavior or package structure.
 
 ---
 
