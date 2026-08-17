@@ -1,16 +1,18 @@
 <p align="center">
-  <img src="icon.svg" alt="n8n Logo" width="21%">
+  <img src="icon.png" alt="n8n Logo" width="21%">
 </p>
 
 # n8n on StartOS
 
-> **Upstream docs:** <https://docs.n8n.io/>
->
 > Everything not listed in this document should behave the same as upstream
 > n8n. If a feature, setting, or behavior is not mentioned here, the upstream
-> documentation is accurate and fully applicable.
+> documentation is accurate and fully applicable — see the Documentation
+> section of `instructions.md` for links.
 
-[n8n](https://n8n.io) is a fair-code workflow automation platform: connect hundreds of apps and services, automate repetitive tasks, and build AI-powered workflows with a visual, node-based editor — self-hosted, with your data and credentials on your own server.
+[n8n](https://github.com/n8n-io/n8n) is a workflow automation tool: you wire together triggers, apps, and code in a visual editor, and it runs them for you. This package runs it self-hosted against a local SQLite database, with telemetry off and a way back in if you lose the owner password.
+
+- **Upstream repo:** <https://github.com/n8n-io/n8n>
+- **Wrapper repo:** <https://github.com/Start9-Community/n8n-startos>
 
 ---
 
@@ -18,147 +20,156 @@
 
 - [Image and Container Runtime](#image-and-container-runtime)
 - [Volume and Data Layout](#volume-and-data-layout)
-- [Installation and First-Run Flow](#installation-and-first-run-flow)
-- [Configuration Management](#configuration-management)
-- [Network Access and Interfaces](#network-access-and-interfaces)
-- [Actions (StartOS UI)](#actions-startos-ui)
-- [Backups and Restore](#backups-and-restore)
-- [Health Checks](#health-checks)
+- [File Models](#file-models)
 - [Dependencies](#dependencies)
+- [Network Access and Interfaces](#network-access-and-interfaces)
+- [Installation and First-Run Flow](#installation-and-first-run-flow)
+- [Actions](#actions)
+- [Tasks](#tasks)
+- [Health Checks](#health-checks)
+- [Backups and Restore](#backups-and-restore)
 - [Limitations and Differences](#limitations-and-differences)
-- [What Is Unchanged from Upstream](#what-is-unchanged-from-upstream)
-- [Contributing](#contributing)
 - [Quick Reference for AI Consumers](#quick-reference-for-ai-consumers)
 
 ---
 
 ## Image and Container Runtime
 
-| Property      | Value                                                                            |
-| ------------- | -------------------------------------------------------------------------------- |
-| Image         | `n8nio/n8n` (the official image, unmodified)                                     |
-| Architectures | x86_64, aarch64                                                                  |
-| Entrypoint    | Upstream default (`sdk.useEntrypoint()` → `tini` → `docker-entrypoint.sh` → n8n) |
+One upstream image, consumed unmodified.
 
-A `chown` one-shot gives the image's `node` user ownership of the mounted data directory before the server starts, since StartOS owns the volume as root.
+| Property      | Value                      |
+| ------------- | -------------------------- |
+| Image         | `n8nio/n8n`                |
+| Architectures | x86_64, aarch64            |
+| Command       | The image's own entrypoint |
 
----
+| Subcontainer | Purpose                                  |
+| ------------ | ---------------------------------------- |
+| `n8n-sub`    | The only daemon — the one to `attach` to |
+
+One oneshot runs first: the volume arrives owned by root, and the image runs the application as an unprivileged user that has to own its own data directory.
+
+**n8n is not open source.** It ships under the Sustainable Use License, which permits self-hosting for internal business purposes but is not an OSI licence — worth knowing before building a product on top of it.
 
 ## Volume and Data Layout
 
-| Volume | Mount Point | Purpose                                                                           |
-| ------ | ----------- | --------------------------------------------------------------------------------- |
-| `main` | `/data`     | n8n's `N8N_USER_FOLDER`: SQLite database, encryption key, config, and binary data |
+One volume, holding everything.
 
-The SQLite database is at `/data/database.sqlite`. The credential **encryption key** is written to `/data/.n8n/config` on first start — it is required to decrypt every stored credential, and it lives on the `main` volume so it is preserved across restarts and included in backups.
+| Volume | Mount Point | Purpose                 |
+| ------ | ----------- | ----------------------- |
+| `main` | `/data`     | n8n's whole user folder |
 
-StartOS also writes `config.json` to the volume root, holding the SMTP settings managed by the **Configure SMTP** action.
+| Path              | Written by | Holds                                     |
+| ----------------- | ---------- | ----------------------------------------- |
+| `database.sqlite` | n8n        | Workflows, credentials, executions, users |
+| `config`          | n8n        | The encryption key                        |
+| `binaryData/`     | n8n        | Files that pass through workflows         |
+| `config.json`     | The action | The SMTP settings                         |
 
----
+**The encryption key is the important file.** Every credential in the database is encrypted with it, and it is generated on first start — so the database alone is not enough to recover anything. Both live on this volume, which is what makes the backup sufficient and also what makes it sensitive.
 
-## Installation and First-Run Flow
+## File Models
 
-- No StartOS setup wizard and no generated secrets. Install, start, and open the Web UI.
-- On first launch, n8n's **own** screen prompts you to create the owner account (email + password). That account is the administrator.
-- The server is usable as soon as the health check passes.
+One model, and it covers only what StartOS contributes.
 
----
+| File          | Format | Modelled                | Written by |
+| ------------- | ------ | ----------------------- | ---------- |
+| `config.json` | JSON   | Yes — `FileHelper.json` | The action |
 
-## Configuration Management
+It holds the SMTP configuration and nothing else: n8n's own settings live in its database and are edited in the interface.
 
-Most of n8n's runtime is configured through fixed environment variables set in `startos/main.ts`. The only user-tunable setting is SMTP, applied through the **Configure SMTP** action and stored in `config.json`. Everything else is managed inside n8n's own settings UI.
+The model is seeded with SMTP disabled at install and merged on every later init, so a field added by a newer version picks up its default rather than being missing.
 
-| Variable                                | Value                              | Purpose                                                                 |
-| --------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------- |
-| `N8N_USER_FOLDER`                       | `/data`                            | Root of all persisted data                                              |
-| `N8N_PORT`                              | `5678`                             | Web UI / API port                                                       |
-| `N8N_PROTOCOL`                          | `http`                             | StartOS terminates TLS at its proxy and forwards plain HTTP             |
-| `N8N_SECURE_COOKIE`                     | `false`                            | Allows the auth cookie over StartOS's HTTP access methods (Tor, LAN IP) |
-| `DB_TYPE` / `DB_SQLITE_DATABASE`        | `sqlite` / `/data/database.sqlite` | Embedded database — no external DB needed                               |
-| `N8N_DIAGNOSTICS_ENABLED`               | `false`                            | Disables telemetry                                                      |
-| `N8N_VERSION_NOTIFICATIONS_ENABLED`     | `false`                            | StartOS manages updates; suppress upstream update nags                  |
-| `N8N_PERSONALIZATION_ENABLED`           | `false`                            | Skips the personalization survey                                        |
-| `N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS` | `true`                             | Enforces strict permissions on the settings file                        |
-| `GENERIC_TIMEZONE` / `TZ`               | `UTC`                              | Default timezone for schedule/cron nodes                                |
-| `N8N_EMAIL_MODE` / `N8N_SMTP_*`         | _(unset until configured)_         | Set by the **Configure SMTP** action to enable email (password resets)  |
-
----
-
-## Network Access and Interfaces
-
-| Interface | Port | Protocol | Purpose                   |
-| --------- | ---- | -------- | ------------------------- |
-| Web UI    | 5678 | HTTP     | n8n editor, API, webhooks |
-
-**Access methods:**
-
-- LAN IP with unique port
-- `<hostname>.local` with unique port
-- Tor `.onion` address (after you add a Tor interface to the service)
-- Custom domains (if configured)
-
-The editor, REST API, and webhook endpoints are all served from this one interface.
-
----
-
-## Actions (StartOS UI)
-
-| Action                   | Purpose                                                                                                                                                                                                                                                                                                                                       | Inputs                          | Allowed Status |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | -------------- |
-| **Configure SMTP**       | Set an SMTP server (StartOS system SMTP or custom) so n8n can send email, including the login screen's "Forgot password" reset and emailed user invitations.                                                                                                                                                                                  | Disabled / system / custom SMTP | any            |
-| **Reset Owner Password** | Generate a new password for the owner account when you are locked out and have no SMTP. It hashes the new password with n8n's own bcryptjs and updates **only** the owner's `password` row via Node's built-in sqlite — every other user, workflow, and credential is untouched, and no restart is needed. The new password is returned once. | None                            | any            |
-
-**Password recovery — two non-destructive paths.** Either **Configure SMTP** and use the login screen's "Forgot password" link (n8n emails a reset and updates the one password in place), or run **Reset Owner Password** when you have no email (generates a fresh owner password directly). n8n ships no CLI for an in-place single-password reset, so the second action does the equivalent itself: a one-row `UPDATE` of the owner's bcrypt hash, failing loud if it would touch anything other than exactly one owner row. User accounts themselves are created and managed inside n8n (owner → **Settings → Users**), not via StartOS.
-
----
-
-## Backups and Restore
-
-**Included in backup:**
-
-- `main` volume (database, encryption key, config, and binary data)
-
-**Restore behavior:** The volume is fully restored before the service starts. Because the encryption key lives on the volume, restored credentials remain decryptable.
-
----
-
-## Health Checks
-
-| Check         | Method                                   | Grace Period | Messages                                            |
-| ------------- | ---------------------------------------- | ------------ | --------------------------------------------------- |
-| Web Interface | HTTP GET `http://127.0.0.1:5678/healthz` | 60s          | Success: "n8n is ready" / Error: "n8n is not ready" |
-
-The grace period covers first-start database setup. The upstream `/healthz` endpoint returns `200` once the server is up.
-
----
+**Everything else n8n needs is passed as environment**, composed at start: the data directory, the port, the database type and path, the timezone, and the switches described below.
 
 ## Dependencies
 
 None.
 
----
+**But most workflows reach the internet**, since automating an external service means talking to it. n8n itself needs no other package here.
+
+## Network Access and Interfaces
+
+One interface.
+
+| Interface | Id   | Type | Port | Description                             |
+| --------- | ---- | ---- | ---- | --------------------------------------- |
+| Web UI    | `ui` | ui   | 5678 | The workflow editor and everything else |
+
+Bound on the `ui-multi` MultiHost over HTTP and not masked. **n8n's own login gates it**, and StartOS adds no gate of its own.
+
+**The session cookie's `Secure` flag is deliberately turned off.** StartOS fronts the interface with its own reverse proxy and publishes addresses that a browser does not treat as secure origins; a `Secure` cookie would never be sent back over those, and the symptom would be a login that appears to succeed and then bounces straight back to the login screen.
+
+Webhook and trigger URLs that n8n hands out are built from the address it is reached on. **A workflow triggered by an external service needs an address that service can reach**, which is a StartOS address decision rather than anything this package configures.
+
+## Installation and First-Run Flow
+
+Install seeds the configuration with SMTP disabled. There is no task and no credential generated here.
+
+**The owner account is created in the interface**, on first visit: n8n asks for an email address and a password, and that account owns the instance. Until it exists, the service is running and reachable but has nothing in it — and the password-reset action has nothing to reset.
+
+The daemon carries a generous grace period, because a first start initializes the database and generates the encryption key before it answers.
+
+## Actions
+
+Two actions.
+
+### Configure SMTP
+
+Points n8n at a mail server, either the one StartOS provides or one you supply.
+
+- **What it changes:** the SMTP settings in the configuration.
+- **Cost:** the service restarts, since the values become environment.
+- **Repeat safety:** idempotent, and pre-filled with the current values.
+- **Why it matters:** the "Forgot password" link on n8n's login screen sends mail. **Without SMTP that link cannot work**, which is what makes the next action necessary.
+
+Choosing the system option uses the server's own SMTP settings, with an optional override of the From address.
+
+### Reset Owner Password
+
+Generates a new password for the owner account and shows it once.
+
+- **For being locked out** with no SMTP configured.
+- **What it changes:** only the owner's password. Workflows, credentials, and any other user accounts are untouched.
+- **Cost:** none — no restart. It runs in a temporary container against the database directly, and n8n reads the hash on each login.
+- **How it is done:** the password is hashed with **n8n's own bundled bcrypt**, taken from inside the image, so the stored format matches what n8n writes itself.
+- **It fails loudly rather than guessing.** If no owner row exists yet, or if it would update more than one, it aborts and says so instead of writing something the application might not understand.
+- **Runnable at any status**, including stopped.
+
+## Tasks
+
+None. This package raises no tasks, so the service is never held on a prompt and its ordinary controls are always available.
+
+## Health Checks
+
+One check, on the only daemon.
+
+| Check     | Displayed as    | Method                    | Grace |
+| --------- | --------------- | ------------------------- | ----- |
+| `primary` | "Web Interface" | n8n's own health endpoint | 60s   |
+
+It queries the application rather than probing the port, so it reports that n8n is actually serving.
+
+**It says nothing about workflows.** A failing trigger, an expired credential, or an execution erroring on every run all show a green check; those are visible in n8n's own executions list.
+
+## Backups and Restore
+
+The `main` volume is copied wholesale — `sdk.Backups.ofVolumes('main')`. That is the database, the encryption key, and the binary data workflows have passed through.
+
+**The backup is equivalent to every credential n8n holds.** The credentials are encrypted in the database, the key that decrypts them is on the same volume, and the backup contains both — which is exactly what makes a restore work.
+
+A restored instance comes back with the same workflows, the same credentials, the same users, and its execution history. Anything that depended on the old address — a webhook URL registered with an external service — has to be re-pointed, since the address is the server's rather than the backup's.
 
 ## Limitations and Differences
 
-1. **Webhook and editor URLs show `localhost`.** Behind the StartOS proxy, n8n is not told its external address, so the URLs it displays for webhooks and "production" endpoints — and the links in password-reset emails — are built from `http://localhost:5678`. The endpoints work; only the displayed/emailed URL may need to be adjusted to your real address. Wiring a primary-URL action is tracked in `TODO.md`.
-2. **SQLite only.** The package runs n8n's embedded SQLite database; the external PostgreSQL option is not exposed.
-3. **No queue mode.** n8n runs as a single process; the Redis-backed queue/worker mode is not configured.
-
----
-
-## What Is Unchanged from Upstream
-
-- The visual workflow editor, all nodes, and the expression engine
-- Credentials, executions, schedules, and webhook triggers
-- The public REST API
-- User management within n8n (owner account, additional users)
-- Everything else documented at <https://docs.n8n.io/>
-
----
-
-## Contributing
-
-Build and development workflow follow the StartOS packaging guide: <https://docs.start9.com/packaging>. Keep `README.md`, `instructions.md`, and `AGENTS.md` in sync with any change to user-visible behavior or package structure.
+1. **Not open source.** The Sustainable Use License allows self-hosting but restricts commercial redistribution.
+2. **SQLite only.** The database type is fixed; there is no option to point n8n at PostgreSQL.
+3. **Single instance.** No queue mode, no separate workers — executions run in the one process.
+4. **The backup is as sensitive as the credentials**, because it contains the encryption key alongside them.
+5. **Password reset needs either SMTP or the action.** There is no other way back into a locked-out instance.
+6. **Telemetry, version notifications, and personalization prompts are turned off** by this package and are not switchable from the interface.
+7. **Externally triggered workflows depend on the address** n8n is reached on being reachable by whoever triggers them.
+8. **The timezone is fixed to UTC**, so schedules are expressed in UTC.
 
 ---
 
@@ -167,18 +178,20 @@ Build and development workflow follow the StartOS packaging guide: <https://docs
 ```yaml
 package_id: n8n
 image: n8nio/n8n
-architectures: [x86_64, aarch64]
+architectures:
+  - x86_64
+  - aarch64
+subcontainers:
+  - n8n-sub
 volumes:
-  main: /data
-ports:
-  ui: 5678
-dependencies: none
-database: sqlite (embedded, at /data/database.sqlite)
+  main: /data # N8N_USER_FOLDER: database.sqlite, the encryption key, binaryData/
+file_models:
+  - config.json # SMTP only; n8n's own settings live in its database
 startos_managed_env_vars:
   - N8N_USER_FOLDER
   - N8N_PORT
   - N8N_PROTOCOL
-  - N8N_SECURE_COOKIE
+  - N8N_SECURE_COOKIE # false — StartOS addresses are not secure origins
   - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
   - N8N_DIAGNOSTICS_ENABLED
   - N8N_VERSION_NOTIFICATIONS_ENABLED
@@ -187,17 +200,14 @@ startos_managed_env_vars:
   - DB_SQLITE_DATABASE
   - GENERIC_TIMEZONE
   - TZ
-  - N8N_EMAIL_MODE # set by manage-smtp
-  - N8N_SMTP_HOST # set by manage-smtp
-  - N8N_SMTP_PORT # set by manage-smtp
-  - N8N_SMTP_USER # set by manage-smtp
-  - N8N_SMTP_PASS # set by manage-smtp
-  - N8N_SMTP_SENDER # set by manage-smtp
-  - N8N_SMTP_SSL # set by manage-smtp
-  - N8N_SMTP_STARTTLS # set by manage-smtp
-startos_managed_files:
-  - config.json # SMTP settings (manage-smtp)
+  - N8N_EMAIL_MODE # the N8N_SMTP_* block only when SMTP is configured
+dependencies: []
+interfaces:
+  ui: { type: ui, port: 5678 } # n8n's own login; no gate added by StartOS
 actions:
   - manage-smtp
-  - reset-owner-password
+  - reset-owner-password # temp container, n8n's own bcrypt, no restart
+tasks: []
+health_checks:
+  - primary # displayed "Web Interface"; queries /healthz, says nothing about workflows
 ```

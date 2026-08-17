@@ -19,6 +19,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
     N8N_DIAGNOSTICS_ENABLED: 'false',
     N8N_VERSION_NOTIFICATIONS_ENABLED: 'false',
     N8N_PERSONALIZATION_ENABLED: 'false',
+    // SQLite is fixed. Adding a PostgreSQL path is a migration story for
+    // existing installs, not just an env var.
     DB_TYPE: 'sqlite',
     DB_SQLITE_DATABASE: `${dataDir}/database.sqlite`,
     GENERIC_TIMEZONE: 'UTC',
