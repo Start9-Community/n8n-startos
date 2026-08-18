@@ -59,12 +59,12 @@ One volume, holding everything.
 | ------ | ----------- | ----------------------- |
 | `main` | `/data`     | n8n's whole user folder |
 
-| Path              | Written by | Holds                                     |
-| ----------------- | ---------- | ----------------------------------------- |
-| `database.sqlite` | n8n        | Workflows, credentials, executions, users |
-| `config`          | n8n        | The encryption key                        |
-| `binaryData/`     | n8n        | Files that pass through workflows         |
-| `config.json`     | The action | The SMTP settings                         |
+| Path              | Written by  | Holds                                     |
+| ----------------- | ----------- | ----------------------------------------- |
+| `database.sqlite` | n8n         | Workflows, credentials, executions, users |
+| `config`          | n8n         | The encryption key                        |
+| `binaryData/`     | n8n         | Files that pass through workflows         |
+| `config.json`     | The actions | The SMTP settings and the primary URL     |
 
 **The encryption key is the important file.** Every credential in the database is encrypted with it, and it is generated on first start — so the database alone is not enough to recover anything. Both live on this volume, which is what makes the backup sufficient and also what makes it sensitive.
 
@@ -72,13 +72,13 @@ One volume, holding everything.
 
 One model, and it covers only what StartOS contributes.
 
-| File          | Format | Modelled                | Written by |
-| ------------- | ------ | ----------------------- | ---------- |
-| `config.json` | JSON   | Yes — `FileHelper.json` | The action |
+| File          | Format | Modelled                | Written by  |
+| ------------- | ------ | ----------------------- | ----------- |
+| `config.json` | JSON   | Yes — `FileHelper.json` | The actions |
 
-It holds the SMTP configuration and nothing else: n8n's own settings live in its database and are edited in the interface.
+It holds the SMTP configuration and the primary URL, nothing else: n8n's own settings live in its database and are edited in the interface.
 
-The model is seeded with SMTP disabled at install and merged on every later init, so a field added by a newer version picks up its default rather than being missing.
+The model is seeded with SMTP disabled at install and merged on every later init, so a field added by a newer version picks up its default rather than being missing. `primaryUrl` is deliberately optional rather than defaulted — which addresses exist is not known until the interface has been exported, so it is filled in at init instead.
 
 **Everything else n8n needs is passed as environment**, composed at start: the data directory, the port, the database type and path, the timezone, and the switches described below.
 
@@ -100,11 +100,19 @@ Bound on the `ui-multi` MultiHost over HTTP and not masked. **n8n's own login ga
 
 **The session cookie's `Secure` flag is deliberately turned off.** StartOS fronts the interface with its own reverse proxy and publishes addresses that a browser does not treat as secure origins; a `Secure` cookie would never be sent back over those, and the symptom would be a login that appears to succeed and then bounces straight back to the login screen.
 
-Webhook and trigger URLs that n8n hands out are built from the address it is reached on. **A workflow triggered by an external service needs an address that service can reach**, which is a StartOS address decision rather than anything this package configures.
+**The URLs n8n hands out are set explicitly, not inferred.** Left alone, n8n composes them from `N8N_PROTOCOL`/`N8N_HOST`/`N8N_PORT`, which behind the StartOS proxy yields `http://localhost:5678` — correct inside the container and meaningless to an external service being handed a webhook, or to someone clicking a password-reset link. The package passes the chosen address as both `N8N_WEBHOOK_URL` and `N8N_EDITOR_BASE_URL`.
+
+`N8N_WEBHOOK_URL` is the current name; the older `WEBHOOK_URL` still works but makes n8n log a deprecation warning on every start. n8n normalizes each itself — appending a trailing slash to the webhook base, stripping one from the editor base — so the same raw address is correct for both.
+
+**`N8N_EDITOR_BASE_URL` reaches past the editor.** `/rest/settings` builds `urlBaseEditor`, `oauthCallbackUrls`, and `jwksUri` from one instance base URL, so the **OAuth Redirect URL** n8n tells you to register with Google, Slack, or any other OAuth provider is the primary URL plus `/rest/oauth2-credential/callback`. An OAuth credential can only be authorized if that address is one the provider can reach.
+
+Which address that is comes from the **Set Primary URL** action. **A workflow triggered by an external service still needs an address that service can actually reach**, which remains a StartOS address decision: picking a `.local` address as primary does not make it reachable from the internet.
 
 ## Installation and First-Run Flow
 
 Install seeds the configuration with SMTP disabled. There is no task and no credential generated here.
+
+**The primary URL is seeded rather than asked for.** At every init the stored choice is checked against the addresses actually being published; if it is missing or no longer among them, a `.local` address is chosen, falling back to the first published address. That runs on install, on update, and after a restore onto a different server. It is deliberately silent — the alternative is leaving n8n handing out URLs it already knows are stale until someone answers a prompt.
 
 **The owner account is created in the interface**, on first visit: n8n asks for an email address and a password, and that account owns the instance. Until it exists, the service is running and reachable but has nothing in it — and the password-reset action has nothing to reset.
 
@@ -112,7 +120,22 @@ The daemon carries a generous grace period, because a first start initializes th
 
 ## Actions
 
-Two actions.
+Three actions.
+
+### Set Primary URL
+
+Chooses which of the published addresses n8n treats as its own.
+
+- **What it changes:** `primaryUrl` in the configuration, which becomes `N8N_WEBHOOK_URL` and `N8N_EDITOR_BASE_URL`.
+- **Cost:** the service restarts, since the value becomes environment.
+- **Repeat safety:** idempotent, and pre-filled with the current choice. The options are read live from the interface, so an address added after install shows up without any further change.
+- **Why it matters:** it is what makes a webhook URL copied out of the editor work when an external service calls it, what makes the OAuth Redirect URL n8n asks you to register with a provider a real address, and what makes the link in a password-reset email land somewhere real.
+
+**An already-open editor tab keeps showing the old URL until it is reloaded.** The frontend hydrates `urlBaseWebhook`/`urlBaseEditor` into an in-memory store once at app initialization, guarded by an `initialized` flag, so a live tab never re-fetches them — and its hardcoded client-side fallback is `http://localhost:5678/`. The server is serving the new value immediately; only the loaded page is stale. A browser reload fixes it (signing out and back in does the same thing, by re-initializing the app, not because the session matters).
+
+**Changing it is display-only — it never moves or unregisters an endpoint.** n8n stores no URL anywhere: an activated workflow writes a `WebhookEntity` keyed on `webhookPath` + `method` (no host, no scheme — its own comment describes the path as "appended to `${instanceUrl}/webhook/`"), and inbound requests are matched by `findWebhook(method, path)`, which takes no host. So a webhook keeps answering on **every** address StartOS publishes, the old one included, and active workflows are unaffected beyond the URL the editor prints.
+
+**What does go stale is a copy of the old URL held somewhere else.** A URL handed to GitHub or Stripe last month is a string in that service's configuration; changing the primary URL changes what n8n shows from then on, and the external side has to be updated by hand.
 
 ### Configure SMTP
 
@@ -168,8 +191,9 @@ A restored instance comes back with the same workflows, the same credentials, th
 4. **The backup is as sensitive as the credentials**, because it contains the encryption key alongside them.
 5. **Password reset needs either SMTP or the action.** There is no other way back into a locked-out instance.
 6. **Telemetry, version notifications, and personalization prompts are turned off** by this package and are not switchable from the interface.
-7. **Externally triggered workflows depend on the address** n8n is reached on being reachable by whoever triggers them.
-8. **The timezone is fixed to UTC**, so schedules are expressed in UTC.
+7. **Externally triggered workflows depend on the primary URL being reachable** by whoever triggers them — the package publishes the address you choose, but cannot make a LAN address routable from the internet.
+8. **Changing the primary URL does not re-register existing webhooks** with the external services already holding the old URL.
+9. **The timezone is fixed to UTC**, so schedules are expressed in UTC.
 
 ---
 
@@ -186,12 +210,14 @@ subcontainers:
 volumes:
   main: /data # N8N_USER_FOLDER: database.sqlite, the encryption key, binaryData/
 file_models:
-  - config.json # SMTP only; n8n's own settings live in its database
+  - config.json # SMTP and primaryUrl; n8n's own settings live in its database
 startos_managed_env_vars:
   - N8N_USER_FOLDER
   - N8N_PORT
   - N8N_PROTOCOL
   - N8N_SECURE_COOKIE # false — StartOS addresses are not secure origins
+  - N8N_WEBHOOK_URL # the primary URL; successor to the deprecated WEBHOOK_URL
+  - N8N_EDITOR_BASE_URL # the primary URL; also the OAuth redirect and email links
   - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
   - N8N_DIAGNOSTICS_ENABLED
   - N8N_VERSION_NOTIFICATIONS_ENABLED
@@ -205,6 +231,7 @@ dependencies: []
 interfaces:
   ui: { type: ui, port: 5678 } # n8n's own login; no gate added by StartOS
 actions:
+  - set-primary-url # drives N8N_WEBHOOK_URL / N8N_EDITOR_BASE_URL; restarts
   - manage-smtp
   - reset-owner-password # temp container, n8n's own bcrypt, no restart
 tasks: []

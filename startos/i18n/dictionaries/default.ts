@@ -20,6 +20,11 @@ const dict = {
   'Generate a new password for the n8n owner account — use this if you are locked out and have not set up SMTP password resets. Your workflows, credentials, and any other user accounts are left untouched.': 9,
   'Owner Password Reset': 10,
   'Sign in to n8n with the new owner password below. It is shown only once — copy it now.': 11,
+
+  // actions/setPrimaryUrl.ts
+  'Set Primary URL': 12,
+  'Primary URL': 13,
+  'Choose which of your n8n addresses n8n should treat as primary. It is used for the webhook URLs shown in the editor and registered with external services, and for the links in the emails n8n sends.': 14,
 } as const
 
 /**

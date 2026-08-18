@@ -7,6 +7,8 @@ import { dataDir, uiPort } from './utils'
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info(i18n('Starting n8n!'))
 
+  const config = await configJson.read().const(effects)
+
   const env: Record<string, string> = {
     N8N_USER_FOLDER: dataDir,
     N8N_PORT: String(uiPort),
@@ -27,9 +29,16 @@ export const main = sdk.setupMain(async ({ effects }) => {
     TZ: 'UTC',
   }
 
+  // Without these, n8n builds its public links from N8N_PROTOCOL/N8N_HOST/
+  // N8N_PORT — http://localhost:5678 behind the StartOS proxy. setupPrimaryUrl
+  // seeds and repairs the choice, so main only reads it.
+  if (config?.primaryUrl) {
+    env.N8N_WEBHOOK_URL = config.primaryUrl
+    env.N8N_EDITOR_BASE_URL = config.primaryUrl
+  }
+
   // SMTP enables n8n's email features — most importantly the "Forgot password"
   // reset flow. Resolved from the Configure SMTP action (system or custom).
-  const config = await configJson.read().const(effects)
   let smtp: T.SmtpValue | null = null
   if (config?.smtp?.selection === 'system') {
     smtp = await sdk.getSystemSmtp(effects).const()
