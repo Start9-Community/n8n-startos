@@ -2,7 +2,7 @@ import { T } from '@start9labs/start-sdk'
 import { configJson } from './fileModels/config.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
-import { dataDir, getN8nUrls, pickDefaultUrl, uiPort } from './utils'
+import { dataDir, uiPort } from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info(i18n('Starting n8n!'))
@@ -29,20 +29,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
     TZ: 'UTC',
   }
 
-  // Left to itself, n8n composes its public links from N8N_PROTOCOL/N8N_HOST/
-  // N8N_PORT, which behind the StartOS proxy resolves to http://localhost:5678 —
-  // useless to an external service being handed a webhook, and a dead link in a
-  // password-reset email. Both are pointed at the address the user chose instead.
-  //
-  // N8N_WEBHOOK_URL is the successor to WEBHOOK_URL, which still works but logs a
-  // deprecation warning on every start. n8n normalizes each of these itself — it
-  // appends a trailing slash to the webhook base and strips one from the editor
-  // base — so the same raw address is correct for both.
-  const urls = await getN8nUrls(effects)
-  const primaryUrl =
-    config?.primaryUrl ?? pickDefaultUrl(urls) ?? `http://localhost:${uiPort}`
-  env.N8N_WEBHOOK_URL = primaryUrl
-  env.N8N_EDITOR_BASE_URL = primaryUrl
+  // Without these, n8n builds its public links from N8N_PROTOCOL/N8N_HOST/
+  // N8N_PORT — http://localhost:5678 behind the StartOS proxy. setupPrimaryUrl
+  // seeds and repairs the choice, so main only reads it.
+  if (config?.primaryUrl) {
+    env.N8N_WEBHOOK_URL = config.primaryUrl
+    env.N8N_EDITOR_BASE_URL = config.primaryUrl
+  }
 
   // SMTP enables n8n's email features — most importantly the "Forgot password"
   // reset flow. Resolved from the Configure SMTP action (system or custom).

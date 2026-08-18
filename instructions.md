@@ -31,6 +31,8 @@ Most integrations work by adding a **credential** (an API key or token) to a nod
 2. Open the node's **Credentials** field and create a new credential.
 3. Paste the API key or token from that service and save.
 
+Some services — Google, Slack, Microsoft — use **OAuth** instead of a key. There, n8n shows you an **OAuth Redirect URL** to register in that provider's console. It is built from your primary URL, so set that to an address the provider can reach *before* you copy it — see **Accessing n8n remotely**.
+
 Credentials are encrypted at rest using a key stored on your server's volume — they never leave your StartOS.
 
 ### AI workflows
@@ -45,7 +47,7 @@ User accounts are created and managed **inside n8n**, not through StartOS. As th
 
 Three StartOS actions are available under the service's **Actions** tab:
 
-- **Set Primary URL** — tells n8n which of its addresses to put in the webhook and "production" URLs it shows in the editor, and in the links of the emails it sends. StartOS picks one for you when you install, so this is only needed when you want a different one — see below. **Reload your n8n browser tab after running it**, or it will keep showing the old URLs.
+- **Set Primary URL** — tells n8n which of its addresses to put in the webhook and "production" URLs it shows in the editor, in the OAuth Redirect URL it asks you to register with providers like Google or Slack, and in the links of the emails it sends. StartOS picks one for you when you install, so this is only needed when you want a different one — see below. **Reload your n8n browser tab after running it**, or it will keep showing the old URLs.
 - **Configure SMTP** — give n8n an email server (your StartOS system SMTP or a custom one). It enables the login screen's **"Forgot password"** reset and lets n8n email the user invitations above. Set it up if you want self-service password resets.
 - **Reset Owner Password** — locked out of the owner account with no email set up? Run this to get a freshly generated owner password (shown once — copy it, then sign in and change it in **Settings** if you like). It changes **only** the owner's password; every other user, workflow, and credential is left exactly as it was, and n8n keeps running.
 
@@ -58,10 +60,9 @@ By default the Web UI is reachable on your **local network** — via the server'
 
 **After adding one, run the Set Primary URL action and choose it.** n8n copies its primary URL into every webhook URL it shows you, so if it is still set to a `.local` address, the URL you copy out of the editor will not work for a service calling in from the internet.
 
-Four things worth knowing:
+Worth knowing:
 
 - **Reload your n8n tab after changing the primary URL.** n8n reads its own address once when the page loads, so a tab you already had open keeps displaying the old webhook URLs — even on a brand-new workflow. The URLs it is actually serving changed straight away; only the open page is out of date. A browser refresh is enough.
-
 - **The address you choose still has to be reachable by whoever calls it.** Choosing a `.local` address as primary does not expose it to the internet — that is what adding a Tor address or a custom domain does.
 - **Your existing workflows keep working.** Changing the primary URL only changes the address n8n *displays* — every webhook still answers at every address your server publishes, including the one it used before. Active workflows are not deactivated or re-registered.
 - **But a URL you already gave to an outside service will not update itself.** A URL you pasted into GitHub or Stripe is stored on their side. After changing the primary URL, copy the new one from the editor and update it there.

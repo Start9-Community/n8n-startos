@@ -59,12 +59,12 @@ One volume, holding everything.
 | ------ | ----------- | ----------------------- |
 | `main` | `/data`     | n8n's whole user folder |
 
-| Path              | Written by | Holds                                     |
-| ----------------- | ---------- | ----------------------------------------- |
-| `database.sqlite` | n8n        | Workflows, credentials, executions, users |
-| `config`          | n8n        | The encryption key                        |
-| `binaryData/`     | n8n        | Files that pass through workflows         |
-| `config.json`     | The actions | The SMTP settings and the primary URL    |
+| Path              | Written by  | Holds                                     |
+| ----------------- | ----------- | ----------------------------------------- |
+| `database.sqlite` | n8n         | Workflows, credentials, executions, users |
+| `config`          | n8n         | The encryption key                        |
+| `binaryData/`     | n8n         | Files that pass through workflows         |
+| `config.json`     | The actions | The SMTP settings and the primary URL     |
 
 **The encryption key is the important file.** Every credential in the database is encrypted with it, and it is generated on first start — so the database alone is not enough to recover anything. Both live on this volume, which is what makes the backup sufficient and also what makes it sensitive.
 
@@ -72,11 +72,11 @@ One volume, holding everything.
 
 One model, and it covers only what StartOS contributes.
 
-| File          | Format | Modelled                | Written by |
-| ------------- | ------ | ----------------------- | ---------- |
+| File          | Format | Modelled                | Written by  |
+| ------------- | ------ | ----------------------- | ----------- |
 | `config.json` | JSON   | Yes — `FileHelper.json` | The actions |
 
-It holds the SMTP configuration and the primary URL, and nothing else: n8n's own settings live in its database and are edited in the interface.
+It holds the SMTP configuration and the primary URL, nothing else: n8n's own settings live in its database and are edited in the interface.
 
 The model is seeded with SMTP disabled at install and merged on every later init, so a field added by a newer version picks up its default rather than being missing. `primaryUrl` is deliberately optional rather than defaulted — which addresses exist is not known until the interface has been exported, so it is filled in at init instead.
 
@@ -104,6 +104,8 @@ Bound on the `ui-multi` MultiHost over HTTP and not masked. **n8n's own login ga
 
 `N8N_WEBHOOK_URL` is the current name; the older `WEBHOOK_URL` still works but makes n8n log a deprecation warning on every start. n8n normalizes each itself — appending a trailing slash to the webhook base, stripping one from the editor base — so the same raw address is correct for both.
 
+**`N8N_EDITOR_BASE_URL` reaches past the editor.** `/rest/settings` builds `urlBaseEditor`, `oauthCallbackUrls`, and `jwksUri` from one instance base URL, so the **OAuth Redirect URL** n8n tells you to register with Google, Slack, or any other OAuth provider is the primary URL plus `/rest/oauth2-credential/callback`. An OAuth credential can only be authorized if that address is one the provider can reach.
+
 Which address that is comes from the **Set Primary URL** action. **A workflow triggered by an external service still needs an address that service can actually reach**, which remains a StartOS address decision: picking a `.local` address as primary does not make it reachable from the internet.
 
 ## Installation and First-Run Flow
@@ -127,7 +129,7 @@ Chooses which of the published addresses n8n treats as its own.
 - **What it changes:** `primaryUrl` in the configuration, which becomes `N8N_WEBHOOK_URL` and `N8N_EDITOR_BASE_URL`.
 - **Cost:** the service restarts, since the value becomes environment.
 - **Repeat safety:** idempotent, and pre-filled with the current choice. The options are read live from the interface, so an address added after install shows up without any further change.
-- **Why it matters:** it is what makes a webhook URL copied out of the editor work when an external service calls it, and what makes the link in a password-reset email land somewhere real.
+- **Why it matters:** it is what makes a webhook URL copied out of the editor work when an external service calls it, what makes the OAuth Redirect URL n8n asks you to register with a provider a real address, and what makes the link in a password-reset email land somewhere real.
 
 **An already-open editor tab keeps showing the old URL until it is reloaded.** The frontend hydrates `urlBaseWebhook`/`urlBaseEditor` into an in-memory store once at app initialization, guarded by an `initialized` flag, so a live tab never re-fetches them — and its hardcoded client-side fallback is `http://localhost:5678/`. The server is serving the new value immediately; only the loaded page is stale. A browser reload fixes it (signing out and back in does the same thing, by re-initializing the app, not because the session matters).
 
@@ -215,7 +217,7 @@ startos_managed_env_vars:
   - N8N_PROTOCOL
   - N8N_SECURE_COOKIE # false — StartOS addresses are not secure origins
   - N8N_WEBHOOK_URL # the primary URL; successor to the deprecated WEBHOOK_URL
-  - N8N_EDITOR_BASE_URL # the primary URL; used for links in emails
+  - N8N_EDITOR_BASE_URL # the primary URL; also the OAuth redirect and email links
   - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
   - N8N_DIAGNOSTICS_ENABLED
   - N8N_VERSION_NOTIFICATIONS_ENABLED
