@@ -14,6 +14,9 @@ export default {
     9: 'Genera una nueva contraseña para la cuenta de propietario de n8n: úsala si estás bloqueado y no has configurado el restablecimiento de contraseña por SMTP. Tus flujos de trabajo, credenciales y cualquier otra cuenta de usuario permanecen intactos.',
     10: 'Contraseña del propietario restablecida',
     11: 'Inicia sesión en n8n con la nueva contraseña del propietario que aparece abajo. Se muestra solo una vez: cópiala ahora.',
+    12: 'Establecer URL principal',
+    13: 'URL principal',
+    14: 'Elige cuál de tus direcciones de n8n debe tratarse como principal. Se usa para las URL de webhook que se muestran en el editor y que se registran en servicios externos, y para los enlaces de los correos que envía n8n.',
   },
   de_DE: {
     0: 'n8n wird gestartet!',
@@ -28,6 +31,9 @@ export default {
     9: 'Erzeugt ein neues Passwort für das n8n-Eigentümerkonto – verwenden Sie dies, wenn Sie ausgesperrt sind und keine SMTP-Passwortzurücksetzung eingerichtet haben. Ihre Workflows, Zugangsdaten und alle anderen Benutzerkonten bleiben unangetastet.',
     10: 'Eigentümer-Passwort zurückgesetzt',
     11: 'Melden Sie sich bei n8n mit dem unten stehenden neuen Eigentümer-Passwort an. Es wird nur einmal angezeigt – kopieren Sie es jetzt.',
+    12: 'Primäre URL festlegen',
+    13: 'Primäre URL',
+    14: 'Wählen Sie, welche Ihrer n8n-Adressen als primär gelten soll. Sie wird für die Webhook-URLs verwendet, die im Editor angezeigt und bei externen Diensten registriert werden, sowie für die Links in den E-Mails, die n8n versendet.',
   },
   pl_PL: {
     0: 'Uruchamianie n8n!',
@@ -42,6 +48,9 @@ export default {
     9: 'Generuje nowe hasło dla konta właściciela n8n — użyj tego, jeśli jesteś zablokowany i nie skonfigurowałeś resetowania hasła przez SMTP. Twoje przepływy pracy, poświadczenia i wszelkie inne konta użytkowników pozostają nietknięte.',
     10: 'Hasło właściciela zresetowane',
     11: 'Zaloguj się do n8n nowym hasłem właściciela podanym poniżej. Jest ono wyświetlane tylko raz — skopiuj je teraz.',
+    12: 'Ustaw główny adres URL',
+    13: 'Główny adres URL',
+    14: 'Wybierz, który z Twoich adresów n8n ma być traktowany jako główny. Jest używany do adresów URL webhooków wyświetlanych w edytorze i rejestrowanych w usługach zewnętrznych oraz do linków w wiadomościach e-mail wysyłanych przez n8n.',
   },
   fr_FR: {
     0: 'Démarrage de n8n !',
@@ -56,5 +65,8 @@ export default {
     9: "Génère un nouveau mot de passe pour le compte propriétaire n8n — à utiliser si vous êtes verrouillé et que vous n'avez pas configuré la réinitialisation par SMTP. Vos flux de travail, identifiants et tout autre compte utilisateur restent intacts.",
     10: 'Mot de passe propriétaire réinitialisé',
     11: "Connectez-vous à n8n avec le nouveau mot de passe propriétaire ci-dessous. Il n'est affiché qu'une seule fois — copiez-le maintenant.",
+    12: "Définir l'URL principale",
+    13: 'URL principale',
+    14: "Choisissez laquelle de vos adresses n8n doit être considérée comme principale. Elle sert aux URL de webhook affichées dans l'éditeur et enregistrées auprès des services externes, ainsi qu'aux liens des e-mails envoyés par n8n.",
   },
 } satisfies Record<string, LangDict>
