@@ -106,13 +106,13 @@ Bound on the `ui-multi` MultiHost over HTTP and not masked. **n8n's own login ga
 
 **`N8N_EDITOR_BASE_URL` reaches past the editor.** `/rest/settings` builds `urlBaseEditor`, `oauthCallbackUrls`, and `jwksUri` from one instance base URL, so the **OAuth Redirect URL** n8n tells you to register with Google, Slack, or any other OAuth provider is the primary URL plus `/rest/oauth2-credential/callback`. An OAuth credential can only be authorized if that address is one the provider can reach.
 
-Which address that is comes from the **Set Primary URL** action. While none is chosen, or the chosen hostname is not one of the interface's addresses, the package passes the `.local` address instead (the first published address if there is no `.local`) without overwriting the choice, and returns to it when it is published again. **Open UI opens the same address**, falling back to StartOS's usual choice when it is not available. **A workflow triggered by an external service still needs an address that service can actually reach**, which remains a StartOS address decision: picking a `.local` address as primary does not make it reachable from the internet.
+Which address that is comes from the **Set Primary URL** action. While none is chosen, or the chosen hostname is not one of the interface's addresses, the package passes the preferred published address instead (a public domain, HTTPS first, then `.local`, then the first offered address) without overwriting the choice, and returns to it when it is published again. **Open UI opens the same address**, falling back to StartOS's usual choice when it is not available. **A workflow triggered by an external service still needs an address that service can actually reach**, which remains a StartOS address decision: picking a `.local` address as primary does not make it reachable from the internet.
 
 ## Installation and First-Run Flow
 
 Install seeds the configuration with SMTP disabled. No credential is generated here.
 
-**The primary URL is asked for, but nothing waits on it.** Install raises an `important` task to choose it; until then n8n uses the `.local` address. The same task comes back whenever the chosen hostname stops being one of the interface's addresses — after a restore onto a different server, for example — and clears when it returns or another is chosen.
+**The primary URL is asked for, but nothing waits on it.** Install raises an `important` task to choose it; until then n8n uses the preferred published address described above. The same task comes back whenever the chosen hostname stops being one of the interface's addresses — after a restore onto a different server, for example — and clears when it returns or another is chosen.
 
 **The owner account is created in the interface**, on first visit: n8n asks for an email address and a password, and that account owns the instance. Until it exists, the service is running and reachable but has nothing in it — and the password-reset action has nothing to reset.
 
@@ -128,7 +128,7 @@ Chooses which of the published addresses n8n treats as its own.
 
 - **What it changes:** `primaryUrl` in the configuration, which becomes `N8N_WEBHOOK_URL` and `N8N_EDITOR_BASE_URL`.
 - **Cost:** the service restarts, since the value becomes environment.
-- **Repeat safety:** idempotent, and pre-filled with the current choice, or the `.local` address when there is none. Built by `sdk.setupPrimaryUrl`; the options are read live from the interface, so an address added after install shows up without any further change.
+- **Repeat safety:** idempotent, and pre-filled with the current choice, or the preferred published address when there is none. Built by `sdk.setupPrimaryUrl`; the options are read live from the interface, so an address added after install shows up without any further change.
 - **Why it matters:** it is what makes a webhook URL copied out of the editor work when an external service calls it, what makes the OAuth Redirect URL n8n asks you to register with a provider a real address, and what makes the link in a password-reset email land somewhere real.
 
 **An already-open editor tab keeps showing the old URL until it is reloaded.** The frontend hydrates `urlBaseWebhook`/`urlBaseEditor` into an in-memory store once at app initialization, guarded by an `initialized` flag, so a live tab never re-fetches them — and its hardcoded client-side fallback is `http://localhost:5678/`. The server is serving the new value immediately; only the loaded page is stale. A browser reload fixes it (signing out and back in does the same thing, by re-initializing the app, not because the session matters).
@@ -186,7 +186,7 @@ The `main` volume is copied wholesale — `sdk.Backups.ofVolumes('main')`. That 
 
 **The backup is equivalent to every credential n8n holds.** The credentials are encrypted in the database, the key that decrypts them is on the same volume, and the backup contains both — which is exactly what makes a restore work.
 
-A restored instance comes back with the same workflows, the same credentials, the same users, and its execution history. Anything that depended on the old address — a webhook URL registered with an external service — has to be re-pointed, since the address is the server's rather than the backup's. If the restored choice is not one of the new server's addresses, n8n uses the `.local` address and the primary-URL task asks for another.
+A restored instance comes back with the same workflows, the same credentials, the same users, and its execution history. Anything that depended on the old address — a webhook URL registered with an external service — has to be re-pointed, since the address is the server's rather than the backup's. If the restored choice is not one of the new server's addresses, n8n uses the preferred published address and the primary-URL task asks for another.
 
 ## Limitations and Differences
 

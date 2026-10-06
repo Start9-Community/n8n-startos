@@ -37,4 +37,4 @@ verified, tried, and decided belongs in the commit message and the PR body.
 - **Keep `N8N_SECURE_COOKIE: 'false'`.** A `Secure` cookie is never sent back over StartOS's non-secure origins, so every login silently bounces.
 - **Keep `reset-owner-password`'s exactly-one-row guard, and don't add a restart after it.** The guard is what catches an owner-table schema change on an upstream bump; n8n reads the hash per login.
 - **Use `N8N_WEBHOOK_URL`, not `WEBHOOK_URL`, and pass the raw address to it and `N8N_EDITOR_BASE_URL`.** The old name logs a deprecation warning every start, and n8n normalizes trailing slashes itself.
-- **Read the primary URL through `primaryUrl.bestUsable`, never `config.json`'s `primaryUrl` directly.** The stored value can name an address that is no longer published; `bestUsable` falls back to `.local` without overwriting it.
+- **Read the primary URL through `primaryUrl.bestUsable`, never `config.json`'s `primaryUrl` directly.** The stored value can name an address that is no longer published; `bestUsable` falls back to the preferred published address without overwriting it.
