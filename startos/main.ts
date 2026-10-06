@@ -1,6 +1,7 @@
 import { T } from '@start9labs/start-sdk'
 import { configJson } from './fileModels/config.json'
 import { i18n } from './i18n'
+import { primaryUrl } from './primaryUrl'
 import { sdk } from './sdk'
 import { dataDir, uiPort } from './utils'
 
@@ -30,11 +31,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
   }
 
   // Without these, n8n builds its public links from N8N_PROTOCOL/N8N_HOST/
-  // N8N_PORT — http://localhost:5678 behind the StartOS proxy. setupPrimaryUrl
-  // seeds and repairs the choice, so main only reads it.
-  if (config?.primaryUrl) {
-    env.N8N_WEBHOOK_URL = config.primaryUrl
-    env.N8N_EDITOR_BASE_URL = config.primaryUrl
+  // N8N_PORT — http://localhost:5678 behind the StartOS proxy.
+  const url = await primaryUrl.bestUsable(effects).const()
+  if (url) {
+    env.N8N_WEBHOOK_URL = url
+    env.N8N_EDITOR_BASE_URL = url
   }
 
   // SMTP enables n8n's email features — most importantly the "Forgot password"
