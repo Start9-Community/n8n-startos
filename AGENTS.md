@@ -18,18 +18,23 @@ Freshly scaffolded? Work the
 guide page, not a file in this repo — read it, don't copy it in.
 
 Keep `README.md` (technical reference for an AI support or administering agent) and
-`instructions.md` (end-user docs) in sync with your changes.
+`instructions.md` (end-user docs) in sync with your changes. This file restates neither:
+whoever changes the package has both, so it carries only what they don't — repo mechanics,
+a change that looks right and is not, where the next thing gets added, a naming trap, a
+build or test invocation particular to this repo.
 
-**Bugs and feature requests are GitHub issues on this repo** — file them as you find them.
+**Fix a defect you spot rather than reporting it** — you have the package open and the
+context to be sure. File **a GitHub issue on this repo** only when the call isn't yours to
+make: you can't pin the cause down, two defensible fixes exist, or it's too large to ride on
+the work in hand. An open issue is a report, not a queue — implement one when you're asked
+to or when it's labelled `Approved`, then close it with `Closes #<n>`.
+
 Don't record work in the repo instead: no `TODO.md`, no `NOTES.md`, no `PLAN.md`. What you
 verified, tried, and decided belongs in the commit message and the PR body.
 
 ## This repo
 
-- **`N8N_SECURE_COOKIE: 'false'` is load-bearing.** StartOS publishes the UI over origins a browser does not treat as secure, so a `Secure`-flagged auth cookie is never sent back and every login silently bounces to the login screen. Don't "harden" it.
-- **`reset-owner-password` uses n8n's own bundled `bcryptjs`, resolved from inside the image** (falling back to the pnpm store layout), so the hash format matches what n8n writes. It updates the `global:owner` row via Node's built-in `node:sqlite` in a temp container, and **aborts unless exactly one row changed** — that guard is what catches schema drift on an upstream bump instead of corrupting the user table.
-- **No restart after a password reset.** n8n reads the hash per login, so don't add one.
-- **The encryption key lives on the `main` volume beside the database.** Both are needed to decrypt stored credentials — never split them across volumes or exclude either from the backup.
-- **`N8N_WEBHOOK_URL`, not `WEBHOOK_URL`.** The old name still works but makes n8n log a deprecation warning on every start. n8n normalizes both URLs itself — it appends a trailing slash to the webhook base and strips one from the editor base — so pass the raw address to each and don't hand-format it.
-- **The primary URL is seeded silently, never prompted.** `setupPrimaryUrl` re-picks at every init when the stored address is missing or no longer published. Don't convert it to a task: the service would keep handing out URLs it knows are stale until someone answered. `main.ts` reads the stored value and nothing more — don't give it a fallback, and don't have it re-read the address list, which would restart the daemon every time an unrelated address is added.
-- **The `chown` oneshot is required.** The image runs as `node`; the volume arrives root-owned and n8n cannot create its database or config without it.
+- **Keep `N8N_SECURE_COOKIE: 'false'`.** A `Secure` cookie is never sent back over StartOS's non-secure origins, so every login silently bounces.
+- **Keep `reset-owner-password`'s exactly-one-row guard, and don't add a restart after it.** The guard is what catches an owner-table schema change on an upstream bump; n8n reads the hash per login.
+- **Use `N8N_WEBHOOK_URL`, not `WEBHOOK_URL`, and pass the raw address to it and `N8N_EDITOR_BASE_URL`.** The old name logs a deprecation warning every start, and n8n normalizes trailing slashes itself.
+- **Read the primary URL through `primaryUrl.bestUsable`, never `config.json`'s `primaryUrl` directly.** The stored value can name an address that is no longer published; `bestUsable` falls back to the preferred published address without overwriting it.

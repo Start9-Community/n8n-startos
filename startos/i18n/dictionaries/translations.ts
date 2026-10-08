@@ -17,6 +17,8 @@ export default {
     12: 'Establecer URL principal',
     13: 'URL principal',
     14: 'Elige cuál de tus direcciones de n8n debe tratarse como principal. Se usa para las URL de webhook que se muestran en el editor y que se registran en servicios externos, y para los enlaces de los correos que envía n8n.',
+    15: 'Reemplaza la contraseña de la cuenta de propietario de n8n. La contraseña actual deja de funcionar y la nueva se muestra solo una vez.',
+    16: 'Elige la dirección que n8n usa en las URL de webhook y en los enlaces de los correos que envía',
   },
   de_DE: {
     0: 'n8n wird gestartet!',
@@ -34,6 +36,8 @@ export default {
     12: 'Primäre URL festlegen',
     13: 'Primäre URL',
     14: 'Wählen Sie, welche Ihrer n8n-Adressen als primär gelten soll. Sie wird für die Webhook-URLs verwendet, die im Editor angezeigt und bei externen Diensten registriert werden, sowie für die Links in den E-Mails, die n8n versendet.',
+    15: 'Ersetzt das Passwort des n8n-Eigentümerkontos. Das aktuelle Passwort funktioniert nicht mehr, und das neue wird nur einmal angezeigt.',
+    16: 'Wählen Sie die Adresse, die n8n in Webhook-URLs und in den Links der von ihm versendeten E-Mails verwendet',
   },
   pl_PL: {
     0: 'Uruchamianie n8n!',
@@ -51,6 +55,8 @@ export default {
     12: 'Ustaw główny adres URL',
     13: 'Główny adres URL',
     14: 'Wybierz, który z Twoich adresów n8n ma być traktowany jako główny. Jest używany do adresów URL webhooków wyświetlanych w edytorze i rejestrowanych w usługach zewnętrznych oraz do linków w wiadomościach e-mail wysyłanych przez n8n.',
+    15: 'Zastępuje hasło konta właściciela n8n. Obecne hasło przestaje działać, a nowe jest wyświetlane tylko raz.',
+    16: 'Wybierz adres, którego n8n używa w adresach URL webhooków i w linkach w wysyłanych wiadomościach e-mail',
   },
   fr_FR: {
     0: 'Démarrage de n8n !',
@@ -68,5 +74,7 @@ export default {
     12: "Définir l'URL principale",
     13: 'URL principale',
     14: "Choisissez laquelle de vos adresses n8n doit être considérée comme principale. Elle sert aux URL de webhook affichées dans l'éditeur et enregistrées auprès des services externes, ainsi qu'aux liens des e-mails envoyés par n8n.",
+    15: "Remplace le mot de passe du compte propriétaire n8n. Le mot de passe actuel cesse de fonctionner, et le nouveau n'est affiché qu'une seule fois.",
+    16: "Choisissez l'adresse que n8n utilise dans les URL de webhook et dans les liens des e-mails qu'il envoie",
   },
 } satisfies Record<string, LangDict>

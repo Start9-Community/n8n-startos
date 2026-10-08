@@ -47,7 +47,9 @@ export const resetOwnerPassword = sdk.Action.withoutInput(
     description: i18n(
       'Generate a new password for the n8n owner account — use this if you are locked out and have not set up SMTP password resets. Your workflows, credentials, and any other user accounts are left untouched.',
     ),
-    warning: null,
+    warning: i18n(
+      'Replaces the n8n owner account password. The current password stops working, and the new one is shown only once.',
+    ),
     allowedStatuses: 'any',
     group: null,
     visibility: 'enabled',
