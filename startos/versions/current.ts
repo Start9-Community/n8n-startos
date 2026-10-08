@@ -13,7 +13,7 @@ The 2.31–2.35 lines add admin-managed instance credentials, private credential
 
 Full release notes: https://github.com/n8n-io/n8n/releases
 
-- Open UI opens n8n at its primary URL.
+- Open UI opens n8n at its primary URL when your connection can reach it.
 - Reset Owner Password asks for confirmation before running.
 - A task asks you to choose the primary URL while none is chosen or the chosen address is unavailable. Until then n8n uses its public domain if it has one, otherwise its .local address, and it returns to your choice when that address does.`,
     es_ES: `Actualiza n8n a 2.35.3 y corrige las URL que n8n publica.
@@ -26,7 +26,7 @@ Las líneas 2.31–2.35 añaden credenciales de instancia gestionadas por el adm
 
 Notas de la versión completas: https://github.com/n8n-io/n8n/releases
 
-- Abrir interfaz abre n8n en su URL principal.
+- Abrir interfaz abre n8n en su URL principal cuando tu conexión puede alcanzarla.
 - Restablecer contraseña del propietario pide confirmación antes de ejecutarse.
 - Una tarea te pide elegir la URL principal mientras no haya ninguna elegida o la dirección elegida no esté disponible. Hasta entonces n8n usa su dominio público si tiene uno y, si no, su dirección .local, y vuelve a tu elección cuando esa dirección regresa.`,
     de_DE: `Aktualisiert n8n auf 2.35.3 und korrigiert die von n8n ausgegebenen URLs.
@@ -39,7 +39,7 @@ Die Reihen 2.31–2.35 ergänzen administrativ verwaltete Instanz-Anmeldedaten, 
 
 Vollständige Versionshinweise: https://github.com/n8n-io/n8n/releases
 
-- „Oberfläche öffnen“ öffnet n8n unter seiner primären URL.
+- „Oberfläche öffnen“ öffnet n8n unter seiner primären URL, wenn Ihre Verbindung sie erreichen kann.
 - „Eigentümer-Passwort zurücksetzen“ fragt vor der Ausführung nach einer Bestätigung.
 - Eine Aufgabe fordert Sie auf, die primäre URL zu wählen, solange keine gewählt ist oder die gewählte Adresse nicht verfügbar ist. Bis dahin verwendet n8n seine öffentliche Domain, falls vorhanden, sonst seine .local-Adresse, und kehrt zu Ihrer Wahl zurück, sobald diese Adresse wieder verfügbar ist.`,
     pl_PL: `Aktualizuje n8n do 2.35.3 i naprawia adresy URL udostępniane przez n8n.
@@ -52,7 +52,7 @@ Linie 2.31–2.35 dodają poświadczenia instancji zarządzane przez administrat
 
 Pełne informacje o wydaniu: https://github.com/n8n-io/n8n/releases
 
-- „Otwórz interfejs” otwiera n8n pod jego głównym adresem URL.
+- „Otwórz interfejs” otwiera n8n pod jego głównym adresem URL, gdy Twoje połączenie może go osiągnąć.
 - „Zresetuj hasło właściciela” prosi o potwierdzenie przed uruchomieniem.
 - Zadanie prosi o wybranie głównego adresu URL, dopóki żaden nie jest wybrany lub wybrany adres jest niedostępny. Do tego czasu n8n używa swojej domeny publicznej, jeśli ją ma, a w przeciwnym razie swojego adresu .local, i wraca do Twojego wyboru, gdy ten adres znów będzie dostępny.`,
     fr_FR: `Met à jour n8n vers 2.35.3 et corrige les URL que n8n communique.
@@ -65,7 +65,7 @@ Les séries 2.31 à 2.35 ajoutent des identifiants d'instance gérés par l'admi
 
 Notes de version complètes : https://github.com/n8n-io/n8n/releases
 
-- Ouvrir l'interface ouvre n8n sur son URL principale.
+- Ouvrir l'interface ouvre n8n sur son URL principale lorsque votre connexion peut l'atteindre.
 - Réinitialiser le mot de passe propriétaire demande une confirmation avant de s'exécuter.
 - Une tâche vous demande de choisir l'URL principale tant qu'aucune n'est choisie ou que l'adresse choisie n'est pas disponible. En attendant, n8n utilise son domaine public s'il en a un, sinon son adresse .local, et revient à votre choix dès que cette adresse est de nouveau disponible.`,
   },
