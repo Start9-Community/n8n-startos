@@ -18,6 +18,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
     // plain HTTP (Tor .onion, LAN IP). A Secure-flagged auth cookie would
     // never be sent back over those, so logins would silently fail.
     N8N_SECURE_COOKIE: 'false',
+    // That proxy adds X-Forwarded-For. Telling n8n there is one hop makes
+    // Express take the client address from it; otherwise every request looks
+    // like it came from the proxy, and express-rate-limit logs
+    // ERR_ERL_UNEXPECTED_X_FORWARDED_FOR on the rate-limited login route.
+    N8N_PROXY_HOPS: '1',
     N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: 'true',
     N8N_DIAGNOSTICS_ENABLED: 'false',
     N8N_VERSION_NOTIFICATIONS_ENABLED: 'false',
