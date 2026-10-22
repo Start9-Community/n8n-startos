@@ -35,11 +35,11 @@
 
 ## Image and Container Runtime
 
-One upstream image, consumed unmodified.
+One upstream image, built through the root `Dockerfile`: a temporary layer that replaces its CA store with a fixed Alpine bundle and sets `NODE_OPTIONS=--use-openssl-ca`, which comes out once upstream ships an image built on a fixed store and Node.
 
 | Property      | Value                      |
 | ------------- | -------------------------- |
-| Image         | `n8nio/n8n`                |
+| Image         | `n8nio/n8n` + `Dockerfile` |
 | Architectures | x86_64, aarch64            |
 | Command       | The image's own entrypoint |
 
