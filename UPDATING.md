@@ -23,11 +23,11 @@ done
 # pre-release — do not pin it.
 ```
 
-The current pin lives in `startos/manifest/index.ts` at `images.n8n.source.dockerTag` (the version after the `:` in `n8nio/n8n:<version>`).
+The current pin lives in `startos/manifest/index.ts` at `images.n8n.source.dockerBuild.buildArgs.IMAGE` (the version after the `:` in `n8nio/n8n:<version>`), the base the repo's `Dockerfile` builds on.
 
 ## Applying the bump
 
-1. Bump `dockerTag` in `startos/manifest/index.ts` to `n8nio/n8n:<new version>`.
+1. Bump the `IMAGE` build arg in `startos/manifest/index.ts` to `n8nio/n8n:<new version>`.
 2. Update `version` (`<new version>:0`) and `releaseNotes` in `startos/versions/current.ts`.
 3. Read the upstream release notes for new, renamed, or removed environment variables — n8n's runtime config is passed entirely through env vars in `startos/main.ts`. If a managed setting changed names or defaults, update `main.ts` to match.
 4. Run `make` and confirm the build succeeds for both architectures.
